@@ -80,7 +80,7 @@ export default function TabTwoScreen() {
             {item.sender === "bot" && (
               <Image
                 source={{
-                  uri: "https://via.placeholder.com/40",
+                  uri: "https://i.postimg.cc/vTTDXNMv/technical-support.png",
                 }}
                 style={styles.botImage}
               />

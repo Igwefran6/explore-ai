@@ -1,7 +1,6 @@
 import React, { useCallback, useState } from "react";
 import {
   StyleSheet,
-  Image,
   ScrollView,
   ViewStyle,
   ImageStyle,
@@ -9,10 +8,13 @@ import {
   RefreshControl,
   TouchableOpacity,
 } from "react-native";
+import { Image } from "expo-image";
 import { Text, View } from "@/components/Themed";
 import Colors from "@/constants/Colors";
 import { useColorScheme } from "@/components/useColorScheme";
 import { ColorSchemeName } from "react-native";
+import { Href, Link, router } from "expo-router";
+import AppImages from "@/constants/AppImages";
 
 type QuickAccessProps = {
   id: string;
@@ -24,48 +26,40 @@ type CoursesProps = {
   id: string;
   title: string;
   icon: string;
+  path: string;
 };
 
 export default function TabOneScreen(): JSX.Element {
   const colorScheme: ColorSchemeName = useColorScheme() ?? "light"; // Fallback to "light" if colorScheme is null or undefined
   const [refreshing, setRefreshing] = useState(false);
-
+  const blurhash =
+    "|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[";
+  const myIcon = require("../../assets/images/quickaccess/learn.png");
   const quickAccessItems: QuickAccessProps[] = [
     {
       id: "1",
       title: "Learn",
-      icon: "https://via.placeholder.com/40",
-      path: "/learn",
+      icon: "https://i.postimg.cc/j5sb4nK6/learning.png", // Local image
+      path: "/(quickAccess)/learn",
     },
     {
       id: "2",
       title: "Resources",
-      icon: "https://via.placeholder.com/40",
-      path: "/resources",
+      icon: "https://i.postimg.cc/cCCGVqvr/learning-1.png", // Local image
+      path: "/(quickAccess)/resources",
     },
+
     {
       id: "3",
-      title: "Flashcards",
-      icon: "https://via.placeholder.com/40",
-      path: "/flashcard",
+      title: "AI Quiz",
+      icon: "https://i.postimg.cc/7hRr4BzX/quiz.png", // Local image
+      path: "/(quickAccess)/ai-quiz",
     },
     {
       id: "4",
-      title: "AI Quiz",
-      icon: "https://via.placeholder.com/40",
-      path: "ai-quiz",
-    },
-    {
-      id: "5",
       title: "Calc. GPA",
-      icon: "https://via.placeholder.com/40",
-      path: "calc-gpa",
-    },
-    {
-      id: "6",
-      title: "Calc. CGPA",
-      icon: "https://via.placeholder.com/40",
-      path: "calc-cgpa",
+      icon: "https://i.postimg.cc/s2PzW4FD/gpa.png", // Local image
+      path: "/(quickAccess)/gpa",
     },
   ];
 
@@ -73,28 +67,27 @@ export default function TabOneScreen(): JSX.Element {
     {
       id: "1",
       title: "Computer Science",
-      icon: "https://via.placeholder.com/40",
+      icon: "https://i.postimg.cc/L6Z8Xfsh/computer-science.png",
+      path: "/(courses)/computer",
     },
-    { id: "2", title: "Programming", icon: "https://via.placeholder.com/40" },
+    {
+      id: "2",
+      title: "Programming",
+      icon: "https://i.postimg.cc/FF6KNGN2/database.png",
+      path: "/(courses)/programming",
+    },
     {
       id: "3",
       title: "Data Structures and Algorithms",
-      icon: "https://via.placeholder.com/40",
+      icon: "https://i.postimg.cc/Gt63K3Xc/algorithm.png",
+      path: "/(courses)/datastr",
     },
-    {
-      id: "4",
-      title: "Web Development",
-      icon: "https://via.placeholder.com/40",
-    },
+
     {
       id: "5",
       title: "Operating Systems",
-      icon: "https://via.placeholder.com/40",
-    },
-    {
-      id: "6",
-      title: "Mobile App Development",
-      icon: "https://via.placeholder.com/40",
+      icon: "https://i.postimg.cc/52dNF0Hg/linux-1.png",
+      path: "/(courses)/os",
     },
   ];
 
@@ -118,9 +111,13 @@ export default function TabOneScreen(): JSX.Element {
       {/* User Info */}
       <View style={styles.userInfo}>
         <Image
-          source={{ uri: "https://via.placeholder.com/80" }}
           style={[styles.userImage, { borderColor: Colors[colorScheme].tint }]}
+          source={{ uri: "https://i.postimg.cc/JnB2J1H3/icon.png" }}
+          placeholder={{ blurhash }}
+          contentFit="contain"
+          transition={1000}
         />
+
         <Text style={[styles.userName, { color: Colors[colorScheme].text }]}>
           Welcome User👋
         </Text>
@@ -141,8 +138,15 @@ export default function TabOneScreen(): JSX.Element {
               styles.quickAccessItem,
               { backgroundColor: Colors[colorScheme].itemBackground },
             ]}
+            onPress={() => router.navigate(item.path as Href)}
           >
-            <Image source={{ uri: item.icon }} style={styles.icon} />
+            <Image
+              style={styles.icon}
+              source={{ uri: item.icon }}
+              placeholder={{ blurhash }}
+              contentFit="contain"
+              transition={1000}
+            />
             <Text style={{ color: Colors[colorScheme].text }}>
               {item.title}
             </Text>
@@ -155,7 +159,7 @@ export default function TabOneScreen(): JSX.Element {
         <Text
           style={[styles.sectionTitle, { color: Colors[colorScheme].text }]}
         >
-          My Courses
+          Popular Courses
         </Text>
         {courses.map((item) => (
           <TouchableOpacity
@@ -165,8 +169,15 @@ export default function TabOneScreen(): JSX.Element {
 
               { backgroundColor: Colors[colorScheme].itemBackground },
             ]}
+            onPress={() => router.navigate(item.path as Href)}
           >
-            <Image source={{ uri: item.icon }} style={styles.icon} />
+            <Image
+              style={styles.icon}
+              source={{ uri: item.icon }}
+              placeholder={{ blurhash }}
+              contentFit="contain"
+              transition={1000}
+            />
             <Text style={{ color: Colors[colorScheme].text }}>
               {item.title}
             </Text>
@@ -230,7 +241,7 @@ const styles = StyleSheet.create<Styles>({
     flexDirection: "row",
     alignItems: "center",
     width: "45%",
-    padding: 10,
+    padding: 4,
     marginBottom: 10,
     borderRadius: 8,
   },
@@ -249,6 +260,10 @@ const styles = StyleSheet.create<Styles>({
     width: 40,
     height: 40,
     marginRight: 10,
-    borderRadius: 40,
+    borderWidth: 2,
+    borderColor: "#013DC4cc",
+    borderRadius: 999,
+    objectFit: "contain",
+    backgroundColor: "white",
   },
 });
