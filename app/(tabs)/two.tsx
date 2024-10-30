@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import {
   StyleSheet,
   TextInput,
@@ -8,7 +9,7 @@ import {
   Image,
 } from "react-native";
 import { Text, View } from "@/components/Themed";
-import React, { useState } from "react";
+import axios from "axios";
 import Colors from "@/constants/Colors";
 import { useColorScheme } from "@/components/useColorScheme";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
@@ -20,7 +21,7 @@ type Message = {
   timestamp: string;
 };
 
-export default function TabTwoScreen() {
+export default function ChatScreen() {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "1",
@@ -32,27 +33,49 @@ export default function TabTwoScreen() {
   const [inputText, setInputText] = useState("");
   const colorScheme = useColorScheme() || "light";
 
-  const handleSend = () => {
-    if (inputText.trim()) {
-      const newMessage: Message = {
+  const handleSend = async () => {
+    if (!inputText.trim()) return;
+
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      text: inputText,
+      sender: "user",
+      timestamp: new Date().toLocaleTimeString(),
+    };
+    setMessages((prevMessages) => [...prevMessages, userMessage]);
+    setInputText("");
+
+    const conversationHistory = [
+      ...messages.map((msg) => ({
+        role: msg.sender === "user" ? "user" : "assistant",
+        content: msg.text,
+      })),
+      { role: "user", content: inputText },
+    ];
+
+    try {
+      const response = await axios.post(
+        "http://cyrobye-aibot.vercel.app/api/chat",
+        {
+          messages: conversationHistory,
+        }
+      );
+      const botMessage: Message = {
         id: Date.now().toString(),
-        text: inputText,
-        sender: "user",
+        text: response.data.response,
+        sender: "bot",
         timestamp: new Date().toLocaleTimeString(),
       };
-      setMessages((prevMessages) => [...prevMessages, newMessage]);
-      setInputText("");
-
-      // Simulate AI response
-      setTimeout(() => {
-        const botMessage: Message = {
-          id: Date.now().toString(),
-          text: "This is a response from your AI tutor.",
-          sender: "bot",
-          timestamp: new Date().toLocaleTimeString(),
-        };
-        setMessages((prevMessages) => [...prevMessages, botMessage]);
-      }, 1000);
+      setMessages((prevMessages) => [...prevMessages, botMessage]);
+    } catch (error) {
+      console.error("Error fetching response:", error);
+      const errorBotMessage: Message = {
+        id: Date.now().toString(),
+        text: "Sorry, I couldn't process your request. Please try again later.",
+        sender: "bot",
+        timestamp: new Date().toLocaleTimeString(),
+      };
+      setMessages((prevMessages) => [...prevMessages, errorBotMessage]);
     }
   };
 
@@ -85,18 +108,9 @@ export default function TabTwoScreen() {
                 style={styles.botImage}
               />
             )}
-            <View
-              style={[
-                styles.messageContent,
-                {
-                  backgroundColor: Colors[colorScheme].transparent,
-                },
-              ]}
-            >
+            <View style={styles.messageContent}>
               <Text
-                style={{
-                  color: item.sender === "user" ? "white" : "black",
-                }}
+                style={{ color: item.sender === "user" ? "white" : "black" }}
               >
                 {item.text}
               </Text>
@@ -128,24 +142,11 @@ export default function TabTwoScreen() {
           onPress={handleSend}
           style={[
             styles.sendButton,
-            { backgroundColor: Colors[colorScheme].tint, margin: 4 },
+            { backgroundColor: Colors[colorScheme].tint },
           ]}
         >
           <FontAwesome
             name="send"
-            size={24}
-            color={Colors[colorScheme].background}
-          />
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => alert("Coming soon!")}
-          style={[
-            styles.sendButton,
-            { backgroundColor: Colors[colorScheme].tint, margin: 4 },
-          ]}
-        >
-          <FontAwesome
-            name="microphone"
             size={24}
             color={Colors[colorScheme].background}
           />
@@ -156,14 +157,8 @@ export default function TabTwoScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 10,
-  },
-  messageList: {
-    flexGrow: 1,
-    paddingBottom: 10,
-  },
+  container: { flex: 1, padding: 10 },
+  messageList: { flexGrow: 1, paddingBottom: 10 },
   messageContainer: {
     flexDirection: "row",
     alignItems: "center",
@@ -172,20 +167,19 @@ const styles = StyleSheet.create({
     marginVertical: 5,
     maxWidth: "80%",
   },
-  userMessage: {
-    alignSelf: "flex-end",
-  },
-  botMessage: {
-    alignSelf: "flex-start",
-  },
+  userMessage: { alignSelf: "flex-end" },
+  botMessage: { alignSelf: "flex-start" },
   messageContent: {
     maxWidth: "85%",
+    backgroundColor: "#00000000",
+    paddingHorizontal: 8,
   },
   botImage: {
     width: 40,
     height: 40,
     borderRadius: 20,
     marginRight: 10,
+    alignSelf: "flex-start",
   },
   timestamp: {
     fontSize: 10,
@@ -207,8 +201,5 @@ const styles = StyleSheet.create({
     marginRight: 10,
     fontSize: 18,
   },
-  sendButton: {
-    padding: 14,
-    borderRadius: 20,
-  },
+  sendButton: { padding: 14, borderRadius: 20 },
 });

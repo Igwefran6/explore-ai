@@ -14,7 +14,6 @@ import Colors from "@/constants/Colors";
 import { useColorScheme } from "@/components/useColorScheme";
 import { ColorSchemeName } from "react-native";
 import { Href, Link, router } from "expo-router";
-import AppImages from "@/constants/AppImages";
 
 type QuickAccessProps = {
   id: string;
