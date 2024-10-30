@@ -52,14 +52,14 @@ export default function ChatScreen() {
       })),
       { role: "user", content: inputText },
     ];
-
     try {
       const response = await axios.post(
-        "http://cyrobye-aibot.vercel.app/api/chat",
+        "https://cyrobye-aibot.vercel.app/api/chat",
         {
           messages: conversationHistory,
         }
       );
+      console.log("Response:", response.data);
       const botMessage: Message = {
         id: Date.now().toString(),
         text: response.data.response,

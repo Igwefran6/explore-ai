@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   ActivityIndicator,
+  Alert,
 } from "react-native";
 import Colors from "@/constants/Colors";
 import { useColorScheme } from "react-native";
@@ -20,7 +21,6 @@ export default function QuizScreen() {
   const [question, setQuestion] = useState<QuizQuestion | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
-  const [correct, setCorrect] = useState<boolean | null>(null);
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme || "light"];
 
@@ -52,49 +52,37 @@ export default function QuizScreen() {
   };
 
   const handleAnswerSelect = (answer: string) => {
+    const isCorrect = answer === question?.correct_answer;
     setSelectedAnswer(answer);
-    setCorrect(answer === question?.correct_answer);
+    Alert.alert(
+      isCorrect ? "Correct!" : "Wrong!",
+      isCorrect
+        ? "You chose the correct answer!"
+        : "That's not the right answer.",
+      [{ text: "OK", onPress: fetchRandomQuestion }]
+    );
   };
 
   const renderAnswers = () => {
     if (!question) return null;
 
-    return question.incorrect_answers
-      .map((answer, index) => (
-        <TouchableOpacity
-          key={index}
-          style={[
-            styles.answerButton,
-            {
-              backgroundColor:
-                selectedAnswer === answer ? colors.tint : colors.itemBackground,
-            },
-          ]}
-          onPress={() => handleAnswerSelect(answer)}
-        >
-          <Text style={[styles.answerText, { color: colors.text }]}>
-            {answer}
-          </Text>
-        </TouchableOpacity>
-      ))
-      .concat(
-        <TouchableOpacity
-          style={[
-            styles.answerButton,
-            {
-              backgroundColor:
-                selectedAnswer === question.correct_answer
-                  ? colors.tint
-                  : colors.itemBackground,
-            },
-          ]}
-          onPress={() => handleAnswerSelect(question.correct_answer)}
-        >
-          <Text style={[styles.answerText, { color: colors.text }]}>
-            {question.correct_answer}
-          </Text>
-        </TouchableOpacity>
-      );
+    return question.incorrect_answers.map((answer, index) => (
+      <TouchableOpacity
+        key={index}
+        style={[
+          styles.answerButton,
+          {
+            backgroundColor:
+              selectedAnswer === answer ? colors.tint : colors.itemBackground,
+          },
+        ]}
+        onPress={() => handleAnswerSelect(answer)}
+      >
+        <Text style={[styles.answerText, { color: colors.text }]}>
+          {answer}
+        </Text>
+      </TouchableOpacity>
+    ));
   };
 
   return (
@@ -107,13 +95,6 @@ export default function QuizScreen() {
             {question?.question}
           </Text>
           <View style={styles.answersContainer}>{renderAnswers()}</View>
-          {correct !== null && (
-            <Text
-              style={[styles.resultText, { color: correct ? "green" : "red" }]}
-            >
-              {correct ? "Correct!" : "Wrong!"}
-            </Text>
-          )}
           <TouchableOpacity
             style={styles.nextButton}
             onPress={fetchRandomQuestion}
@@ -150,11 +131,6 @@ const styles = StyleSheet.create({
   },
   answerText: {
     fontSize: 16,
-  },
-  resultText: {
-    fontSize: 18,
-    textAlign: "center",
-    marginVertical: 10,
   },
   nextButton: {
     backgroundColor: "#013DC4",
